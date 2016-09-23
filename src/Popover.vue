@@ -1,19 +1,21 @@
 <template>
-  <span v-el:trigger>
+<span>
+  <span ref="trigger">
     <slot></slot>
   </span>
-  <div v-el:popover v-show="show"
+  <div ref="popover"
     :class="['popover',placement]"
     :transition="effect"
   >
     <div class="arrow"></div>
     <h3 class="popover-title" v-if="title">
-      <slot name="title">{{title}}</slot>
+      <div name="title">{{title}}</div>
     </h3>
     <div class="popover-content">
-      <slot name="content">{{{content}}}</slot>
+      <div name="content" v-html="content"></div>
     </div>
   </div>
+</span>
 </template>
 
 <script>
@@ -31,14 +33,14 @@ export default {
 </script>
 
 <style>
-.scale-transition,
-.fade-transition {
+.scale-transition, .scale-enter-active, .scale-leave-active,
+.fade-transition, .fade-enter-active, .fade-leave-active {
   display: block;
 }
 .scale-enter {
   animation:scale-in 0.15s ease-in;
 }
-.scale-leave {
+.scale-leave, .scale-leave-active {
   animation:scale-out 0.15s ease-out;
 }
 @keyframes scale-in {

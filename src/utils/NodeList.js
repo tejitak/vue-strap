@@ -1,19 +1,19 @@
 const ArrayProto = Array.prototype
 const nodeError = new Error('Passed arguments must be of Node')
-let blurEvent
+let blurEvent = null
 let blurList = []
 let Events = []
 
 class NodeList {
   constructor (args) {
-    var i = 0, l, nodes = args;
+    var nodes = args
     if (args[0] === window) {
       nodes = [window]
     } else if (typeof args[0] === 'string') {
       nodes = (args[1] || document).querySelectorAll(args[0])
       if (args[1]) { this.owner = args[1] }
     } else if (0 in args && !(args[0] instanceof Node) && args[0] && 'length' in args[0]) {
-      nodes = args[0];
+      nodes = args[0]
       if (args[1]) { this.owner = args[1] }
     }
     if (nodes) {
@@ -96,8 +96,6 @@ class NodeList {
     return this
   }
   delete () {
-    let list = new NodeList([[],this.owner])
-    let splice = (index) => ArrayProto.splice.apply()
     let i = this.length - 1
     for(let el = this[i]; el; el = this[--i]) {
       if (el.remove) {
@@ -164,7 +162,7 @@ class NodeList {
     if (prop.constructor === Object) {
       for (let el of this) {
         if (el) {
-          for (key in prop) {
+          for (let key in prop) {
             if (key in el) {
               el[key] = prop[key]
             }
@@ -220,7 +218,7 @@ class NodeList {
       els.some((el) => {
         let target = el.contains(e.target)
         if (target) fn.call(el, e, el)
-        return target;
+        return target
       })
     } : function (e) {
       fn.apply(this, [e, this])

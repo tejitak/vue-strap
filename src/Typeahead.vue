@@ -13,9 +13,9 @@
       @keydown.esc="reset"
       @blur="showDropdown = false"
     />
-    <ul class="dropdown-menu" v-el:dropdown>
-      <li v-for="item in items" v-bind:class="{'active': isActive($index)}">
-        <a @mousedown.prevent="hit" @mousemove="setActive($index)">
+    <ul class="dropdown-menu" ref="dropdown">
+      <li v-for="(item, index) in items" v-bind:class="{'active': isActive(index)}">
+        <a @mousedown.prevent="hit" @mousemove="setActive(index)">
           <partial :name="templateName"></partial>
         </a>
       </li>
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import {getJSON, coerce} from './utils/utils.js'
+import {getJSON} from './utils/utils.js'
 
 let Vue = window.Vue
 
@@ -33,7 +33,7 @@ export default {
     this.items = this.primitiveData
   },
   partials: {
-    default: '<span v-html="item | highlight query"></span>'
+    default: '<span v-html="highlight(item, query)"></span>'
   },
   props: {
     value: {
@@ -64,12 +64,10 @@ export default {
     },
     matchCase: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     matchStart: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     onHit: {
@@ -102,7 +100,7 @@ export default {
       }
     }
   },
-  ready () {
+  mounted () {
     // register a partial:
     if (this.templateName && this.templateName !== 'default') {
       Vue.partial(this.templateName, this.template)
@@ -146,9 +144,7 @@ export default {
     },
     down () {
       if (this.current < this.items.length - 1) this.current++
-    }
-  },
-  filters: {
+    },
     highlight (value, phrase) {
       return value.replace(new RegExp('(' + phrase + ')', 'gi'), '<strong>$1</strong>')
     }

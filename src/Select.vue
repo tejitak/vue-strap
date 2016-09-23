@@ -1,8 +1,8 @@
 <template>
-<div v-el:select :class="{'btn-group btn-group-justified': justified, 'btn-select': !justified}">
+<div ref="select" :class="{'btn-group btn-group-justified': justified, 'btn-select': !justified}">
   <slot name="before"></slot>
   <div :class="{open:show,dropdown:!justified}">
-    <select v-el:sel v-model="value" v-show="show" name="{{name}}" class="secret" :multiple="multiple" :required="required" :readonly="readonly" :disabled="disabled">
+    <select ref="sel" v-model="value" v-show="show" :name="name" class="secret" :multiple="multiple" :required="required" :readonly="readonly" :disabled="disabled">
       <option v-if="required" value=""></option>
       <option v-for="option in options" :value="option.value||option">{{ option.label||option }}</option>
     </select>
@@ -19,15 +19,15 @@
     <ul class="dropdown-menu">
       <template v-if="options.length">
         <li v-if="canSearch" class="bs-searchbox">
-          <input type="text" placeholder="{{searchText||text.search}}" class="form-control" autocomplete="off"
-            v-el:search
+          <input type="text" :placeholder="searchText || text.search" class="form-control" autocomplete="off"
+            ref="search"
             v-model="searchValue"
             @keyup.esc="show = false"
           />
           <span v-show="searchValue" class="close" @click="clearSearch">&times;</span>
         </li>
         <li v-if="required&&!clearButton"><a @mousedown.prevent="clear() && blur()">{{ placeholder || text.notSelected }}</a></li>
-        <li v-for="option in options | filterBy searchValue" :id="option.value||option">
+        <li v-for="option in filterBy(options, searchValue)" :id="option.value||option">
           <a @mousedown.prevent="select(option.value||option)">
             <span v-html="option.label||option"></span>
             <span class="glyphicon glyphicon-ok check-mark" v-show="isSelected(option.value||option)"></span>
@@ -35,16 +35,22 @@
         </li>
       </template>
       <slot></slot>
-      <div v-if="showNotify && !closeOnSelect" class="notify in" transition="fadein">{{limitText}}</div>
+      <transition name="fadein">
+        <div v-if="showNotify && !closeOnSelect" class="notify in">
+          {{limitText}}
+        </div>
+      </transition>
     </ul>
-    <div v-if="showNotify && closeOnSelect" class="notify out" transition="fadein"><div>{{limitText}}</div></div>
+    <transition name="fadein">
+      <div v-if="showNotify && closeOnSelect" class="notify out">{{limitText}}<div>
+    </transition>
   </div>
   <slot name="after"></slot>
 </div>
 </template>
 
 <script>
-import {getJSON, coerce, translations} from './utils/utils.js'
+import {getJSON, translations} from './utils/utils.js'
 import $ from './utils/NodeList.js'
 
 var timeout = {}
@@ -59,27 +65,22 @@ export default {
     },
     multiple: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     clearButton: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     closeOnSelect: { // only works when multiple
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     disabled: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     justified: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     lang: {
@@ -88,7 +89,6 @@ export default {
     },
     limit: {
       type: Number,
-      coerce: coerce.number,
       default: 1024
     },
     name: {
@@ -104,22 +104,18 @@ export default {
     },
     readonly: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: null
     },
     required: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: null
     },
     minSearch: {
       type: Number,
-      coerce: coerce.number,
       default: 0
     },
     search: { // Allow searching (only works when options are provided)
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     searchText: {
@@ -195,8 +191,8 @@ export default {
     },
     show (val) {
       if (val) {
-        this.$els.sel.focus()
-        this.$els.search && this.$els.search.focus()
+        this.$refs.sel.focus()
+        this.$refs.search && this.$refs.search.focus()
       }
     },
     url () {
@@ -230,7 +226,7 @@ export default {
     },
     clearSearch () {
       this.searchValue = ''
-      this.$els.search.focus()
+      this.$refs.search.focus()
     },
     checkValue () {
       if (this.multiple && !(this.value instanceof Array)) {
@@ -250,7 +246,8 @@ export default {
     select (v) {
       if (this.value instanceof Array) {
         if (~this.value.indexOf(v)) {
-          this.value.$remove(v)
+          let index = this.value.indexOf(v)
+          this.value.splice(index, 1)
         } else {
           this.value.push(v)
         }
@@ -282,6 +279,16 @@ export default {
     },
     validate () {
       return !this.required ? true : this.value instanceof Array ? this.value.length > 0 : this.value !== null
+    },
+
+    filterBy (options, searchValue) {
+      if (!searchValue) {
+        return options
+      }
+      return options.filter(option => {
+        const value = option.value || option || ''
+        return value.toLowerCase().indexOf(searchValue) !== -1
+      })
     }
   },
   created () {
@@ -299,12 +306,15 @@ export default {
       this._parent = parent
     }
   },
-  ready () {
-    $(this.$els.select).onBlur(e => { this.show = false })
+  mounted () {
+    $(this.$refs.select).onBlur(e => { this.show = false })
   },
   beforeDestroy () {
-    if (this._parent) this._parent.children.$remove(this)
-    $(this.$els.select).offBlur()
+    if (this._parent) {
+      let index = this._parent.children.indexOf(this)
+      this._parent.children.splice(index, 1)
+    }
+    $(this.$refs.select).offBlur()
   }
 }
 </script>

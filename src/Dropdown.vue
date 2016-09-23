@@ -1,5 +1,6 @@
 <template>
-  <li v-if="$parent._navbar||$parent.menu||$parent._tabset" v-el:dropdown class="dropdown" :class="classes">
+<div>
+  <li v-if="$parent._navbar||$parent.menu||$parent._tabset" ref="dropdown" class="dropdown" :class="classes">
       <a v-if="text" class="dropdown-toggle" role="button" :class="{disabled: disabled}" @keyup.esc="show = false">
         {{ text }}
         <span class="caret"></span>
@@ -10,8 +11,8 @@
       <slot></slot>
     </ul>
   </li>
-  <div v-else v-el:dropdown class="btn-group" :class="classes">
-      <button v-if="text" type="button" class="btn btn-{{type||'default'}} dropdown-toggle" @keyup.esc="show = false" :disabled="disabled">
+  <div v-else ref="dropdown" class="btn-group" :class="classes">
+      <button v-if="text" type="button" :class="'btn btn-' + (type || 'default') + ' dropdown-toggle'" @keyup.esc="show = false" :disabled="disabled">
         {{ text }}
         <span class="caret"></span>
       </button>
@@ -21,23 +22,21 @@
       <slot></slot>
     </ul>
   </div>
+</div>
 </template>
 <script>
-import {coerce} from './utils/utils.js'
 import $ from './utils/NodeList.js'
 
 export default {
   props: {
-    show: {
-      twoWay: true,
-      type: Boolean,
-      coerce: coerce.boolean,
-      default: false
-    },
+    // show: {
+    //   twoWay: true,
+    //   type: Boolean,
+    //   default: false
+    // },
     'class': null,
     disabled: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: false
     },
     text: {
@@ -47,6 +46,11 @@ export default {
     type: {
       type: String,
       default: null
+    }
+  },
+  data () {
+    return {
+      show: false
     }
   },
   computed: {
@@ -60,7 +64,7 @@ export default {
       return this.$parent && (this.$parent.menu || this.$parent.submenu)
     },
     slots () {
-      return this._slotContents
+      return this.$slots
     }
   },
   methods: {
@@ -78,8 +82,8 @@ export default {
       }
     }
   },
-  ready () {
-    const $el = $(this.$els.dropdown)
+  mounted () {
+    const $el = $(this.$refs.dropdown)
     $el.onBlur((e) => { this.show = false })
     $el.findChildren('a,button').on('click', (e) => {
       e.preventDefault()
@@ -90,7 +94,7 @@ export default {
     $el.findChildren('ul').on('click', 'li>a', (e) => { this.show = false })
   },
   beforeDestroy () {
-    const $el = $(this.$els.dropdown)
+    const $el = $(this.$refs.dropdown)
     $el.offBlur()
     $el.findChildren('a,button').off()
     $el.findChildren('ul').off()

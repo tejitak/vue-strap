@@ -1,0 +1,4 @@
+public/dist/**/*
+public/js/lib/*
+src/lib/*
+test/lib/*

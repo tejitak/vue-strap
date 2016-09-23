@@ -1,4 +1,3 @@
-import {coerce} from './utils/utils.js'
 import $ from './utils/NodeList.js'
 
 export default {
@@ -18,7 +17,6 @@ export default {
     },
     header: {
       type: Boolean,
-      coerce: coerce.boolean,
       default: true
     },
     placement: {
@@ -37,13 +35,14 @@ export default {
   methods: {
     toggle (e) {
       this.show = !this.show
+      this.$refs.popover.style.display = this.show ? 'block' : 'none'
       if (e && this.trigger === 'contextmenu') e.preventDefault()
     }
   },
-  ready () {
-    const popover = this.$els.popover
+  mounted () {
+    const popover = this.$refs.popover
     if (!popover) return console.error('Could not find popover v-el in your component that uses popoverMixin.')
-    let trigger = this.$els.trigger.children[0]
+    let trigger = this.$refs.trigger.children[0]
     switch (this.placement) {
       case 'top' :
         this.position.left = trigger.offsetLeft - popover.offsetWidth / 2 + trigger.offsetWidth / 2

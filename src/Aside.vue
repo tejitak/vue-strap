@@ -26,14 +26,13 @@
 </template>
 
 <script>
-import {coerce, getScrollBarWidth} from './utils/utils.js'
+import {getScrollBarWidth} from './utils/utils.js'
 import $ from './utils/NodeList.js'
 
 export default {
   props: {
     show: {
       type: Boolean,
-      coerce: coerce.boolean,
       required: true,
       twoWay: true
     },
@@ -46,7 +45,6 @@ export default {
     },
     width: {
       type: Number,
-      coerce: coerce.number,
       default: 320
     }
   },
@@ -84,7 +82,8 @@ export default {
   },
   methods: {
     close () {
-      this.show = false
+      // this.show = false
+      this.$emit('on-close')
     }
   }
 }
@@ -116,7 +115,7 @@ export default {
 .slideleft-enter {
   animation:slideleft-in .3s;
 }
-.slideleft-leave {
+.slideleft-leave, .slideleft-leave-active {
   animation:slideleft-out .3s;
 }
 @keyframes slideleft-in {
@@ -142,7 +141,7 @@ export default {
 .slideright-enter {
   animation:slideright-in .3s;
 }
-.slideright-leave {
+.slideright-leave, .slideright-leave-active {
   animation:slideright-out .3s;
 }
 @keyframes slideright-in {
