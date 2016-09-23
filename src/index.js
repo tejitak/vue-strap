@@ -24,7 +24,7 @@ import popover from './Popover.vue'
 // import tabGroup from './TabGroup.vue'
 // import tabset from './Tabset.vue'
 // import tooltip from './Tooltip.vue'
-import typeahead from './Typeahead.vue'
+// import typeahead from './Typeahead.vue'
 
 const VueStrap = {
   $,
@@ -53,7 +53,7 @@ const VueStrap = {
   // tabGroup,
   // tabset,
   // tooltip,
-  typeahead
+  // typeahead
 }
 
 module.exports = VueStrap
